@@ -6,7 +6,7 @@
 /*   By: lchan <marvin@42.fr>                       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/25 13:58:12 by lchan             #+#    #+#             */
-/*   Updated: 2022/01/26 18:27:52 by lchan            ###   ########.fr       */
+/*   Updated: 2022/01/26 20:17:47 by lchan            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,10 +25,12 @@ int	ft_strlen_gnl(const char *str, t_list *c_lst, int on_switch)
 	{
 		if (str[index] == '\n')
 		{
-			printf("found a new_line\n");
+			printf("AAAAYAYAh----------------->found a new_line in sentence [%s]\n", str);
 			if (on_switch)
 				c_lst->buff_position = index + 1;
-			return (0);
+			else
+				index = 0;
+			return (index);
 		}
 		index++;
 	}
@@ -46,7 +48,7 @@ char	*ft_strjoinfree_s1(const char *s1, const char *s2, t_list *c_lst, int buff_
 	if (!s1 && !s2)
 		return (NULL);
 	
-	len_s1 = ft_strlen_gnl(s1, c_lst, 1);
+	len_s1 = ft_strlen_gnl(s1, c_lst, 0);
 	len_s2 = ft_strlen_gnl(s2, c_lst, 1);
 	if (len_s2 == 0 && c_lst->buff_position > 0)
 		len_s2 = BUFFER_SIZE - c_lst->buff_position;
@@ -231,7 +233,7 @@ void	build_content(t_list *c_lst)
 			c_lst->buff[BUFFER_SIZE] = '\0';
 		else
 			c_lst->buff[ret] = '\0';
-		if (!ret || !ft_strlen_gnl(c_lst->content, c_lst, 0))
+		if (!ret || (c_lst->content && !ft_strlen_gnl(c_lst->content, c_lst, 0)))
 			break ;
 	}
 }
@@ -250,5 +252,5 @@ char	*get_next_line(int fd)
 	build_content(c_lst);
 //	ft_print_list_result(&lst);
 	ft_print_current_lst(c_lst);
-	return (next_line);
+	return (c_lst->content);
 }
