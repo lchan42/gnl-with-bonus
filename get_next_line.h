@@ -36,6 +36,7 @@ typedef struct s_list
 	char	*content;
 	char	buff[BUFFER_SIZE + 1];
 	size_t	buff_position;
+//	struct	s_list	*head;
 	struct	s_list	*next;
 }t_list;
 

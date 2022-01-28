@@ -29,8 +29,14 @@ int	main(int ac, char **av)
 	}
 //	else
 //		printf("fd = %d, open success\n", fd); printf("fd2 = %d, open success\n", fd2);
-	printf("\n\n*****************First call of gnl with %s\n", av[1]); printf("	fd = %d\n", fd);
-	get_next_line(fd); 
+//	printf("\n\n*****************First call of gnl with %s\n", av[1]); printf("	fd = %d\n", fd);
+	printf("%s", get_next_line(fd)); 
+	printf("%s", get_next_line(fd)); 
+//	printf("%s", get_next_line(fd3)); 
+	printf("%s", get_next_line(fd)); 
+	printf("%s", get_next_line(fd)); 
+//	printf("%s", get_next_line(fd)); 
+//	printf("%s", get_next_line(fd)); 
 /*	printf("\n\n*****************Second call of gnl\n"); printf("	fd = %d\n", fd);
 	get_next_line(fd); 
 	printf("\n\n*****************Third call of gnl with %s\n", av[2]); printf("	fd = %d\n", fd2);

@@ -11,7 +11,7 @@
 /* ************************************************************************** */
 
 #include "get_next_line.h"
-/*
+
 size_t	ft_strlen_gnl(const char *str, t_list *c_lst, int on_switch)
 {
 	size_t	index;
@@ -20,10 +20,7 @@ size_t	ft_strlen_gnl(const char *str, t_list *c_lst, int on_switch)
 		return (0);
 	index = 0;
 	if (on_switch)
-	{
-		printf("the switch is on\n");
 		c_lst->buff_position = 0;
-	}
 	while (str[index])
 	{
 		if (str[index] == '\n')
@@ -44,39 +41,8 @@ size_t	ft_strlen_gnl(const char *str, t_list *c_lst, int on_switch)
 		index++;
 	}
 	return (index);
-}
-*/
-size_t	ft_strlen_gnl(const char *str, t_list *c_lst, int on_switch)
-{
-	size_t	index;
-	size_t	start;
 
-	if (!str)
-		return (0);
-	index = 0;
-	start = 0;
-	if (on_switch)
-	{
-		start = c_lst-> buff_position;
-///		printf("start = %zu\n", start);
-		c_lst->buff_position = 0;
-	}
-	while (str[index + start])
-	{
-		if (str[index + start] == '\n')
-		{
-//			printf("returning index = %zu", index + 1);
-			if (on_switch)
-				c_lst->buff_position = index + start + 1;
-			else
-				return (0);
-			return (index + 1);
-		}
-		index++;
-	}
-	return (index);
 }
-
 
 char	*ft_strjoinfree_s1(const char *s1, const char *s2, t_list *c_lst, size_t buff_position)
 {
@@ -90,10 +56,10 @@ char	*ft_strjoinfree_s1(const char *s1, const char *s2, t_list *c_lst, size_t bu
 	
 	len_s1 = ft_strlen_gnl(s1, c_lst, 0);
 	len_s2 = ft_strlen_gnl(s2, c_lst, 1);
-//	if (buff_position > 0)
-//		len_s2 = BUFFER_SIZE - buff_position;
-//	printf("buff_position = %zu vs c_lst->buff_position = %zu\n", buff_position, c_lst->buff_position);
-//	printf("len_s1 = %zu, len_s2 = %zu\n",len_s1,  len_s2);
+	if (len_s2 == 0 && c_lst->buff_position > 0)
+		len_s2 = BUFFER_SIZE - buff_position;
+	printf("buff_position = %zu vs c_lst->buff_position = %zu\n", buff_position, c_lst->buff_position);
+//	printf("len_s2 = %zu\n", len_s2);
 	index = -1;
 	joined_str = (char *)malloc((len_s1 + len_s2 + 1) * sizeof(char));
 	if (!joined_str)
@@ -103,7 +69,7 @@ char	*ft_strjoinfree_s1(const char *s1, const char *s2, t_list *c_lst, size_t bu
 	index = -1;
 	while (++index < len_s2)
 	{
-//		printf("adding : s2[%zu] = [%c]\n", buff_position,  s2[buff_position]);
+		printf("adding : s2[%d] = [%c]\n", buff_position,  s2[buff_position]);
 		*(joined_str++) = s2[buff_position++];
 	}
 	*(joined_str) = '\0';
@@ -266,15 +232,10 @@ void	build_content(t_list *c_lst)
 
 	ret = 0;
 	i = 0;
-	if (c_lst->content)
-	{
-		free(c_lst->content);
-		c_lst->content = NULL;
-	}
 	while (1)
 	{
-//		printf("round %d content = %s\n", i, c_lst->content);
-//		printf("round %d buff = %s\n", i, c_lst->buff);
+		printf("round %d content = %s\n", i, c_lst->content);
+		printf("round %d buff = %s\n", i, c_lst->buff);
 //		printf("round %d buff_position = %zu\n\n", i++, c_lst->buff_position);
 		if (c_lst->buff[0] != '\0')
 			c_lst->content = ft_strjoinfree_s1(c_lst->content, c_lst->buff, c_lst, c_lst->buff_position);
@@ -286,7 +247,10 @@ void	build_content(t_list *c_lst)
 		else
 			c_lst->buff[ret] = '\0';
 		if (!ret)
+		{
+			printf("ret = 0\n");
 			break ;
+		}
 	}
 }
 
@@ -301,12 +265,10 @@ char	*get_next_line(int fd)
 	next_line = NULL;
 	c_lst = ft_lstchr_feat_lstnew(&lst, fd);
 //	printf("working on fd nbr %d\n", c_lst->fd);
-//	build_content(c_lst); printf("content 1 = [%s]\n", c_lst->content);
-//	build_content(c_lst); printf("content 2 = [%s]\n", c_lst->content);
-//	build_content(c_lst); printf("content 3 = [%s]\n", c_lst->content);
-//	build_content(c_lst); printf("content 4 = [%s]\n", c_lst->content);
+	build_content(c_lst); printf("content 1 = %s\n", c_lst->content);
+	build_content(c_lst); printf("content 2 = %s\n", c_lst->content);
+	build_content(c_lst); printf("content 3 = %s\n", c_lst->content);
 //	ft_print_list_result(&lst);
-//	ft_print_current_lst(c_lst);
-	build_content(c_lst);
+	ft_print_current_lst(c_lst);
 	return (c_lst->content);
 }
