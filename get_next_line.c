@@ -11,41 +11,7 @@
 /* ************************************************************************** */
 
 #include "get_next_line.h"
-/*
-size_t	ft_strlen_gnl(const char *str, t_list *c_lst, int on_switch)
-{
-	size_t	index;
 
-	if (!str)
-		return (0);
-	index = 0;
-	if (on_switch)
-	{
-		printf("the switch is on\n");
-		c_lst->buff_position = 0;
-	}
-	while (str[index])
-	{
-		if (str[index] == '\n')
-		{
-		//	printf("AAAAYAYAh----------------->found a new_line in sentence [%s]\n at position %zu\n", str, index);
-			if (on_switch)
-			{
-			//	printf("I found a new_line on_switch is ON (= %d)\n", on_switch);
-				c_lst->buff_position = index + 1;
-			}
-			else
-			{
-			//	printf("I found a new_line on_switch is OFF (= %d)\n", on_switch);
-				return (0);
-			}
-			return (index + 1);
-		}
-		index++;
-	}
-	return (index);
-}
-*/
 size_t	ft_strlen_gnl(const char *str, t_list *c_lst, int on_switch)
 {
 	size_t	index;
@@ -90,8 +56,6 @@ char	*ft_strjoinfree_s1(const char *s1, const char *s2, t_list *c_lst, size_t bu
 	
 	len_s1 = ft_strlen_gnl(s1, c_lst, 0);
 	len_s2 = ft_strlen_gnl(s2, c_lst, 1);
-//	if (buff_position > 0)
-//		len_s2 = BUFFER_SIZE - buff_position;
 //	printf("buff_position = %zu vs c_lst->buff_position = %zu\n", buff_position, c_lst->buff_position);
 //	printf("len_s1 = %zu, len_s2 = %zu\n",len_s1,  len_s2);
 	index = -1;
@@ -108,7 +72,6 @@ char	*ft_strjoinfree_s1(const char *s1, const char *s2, t_list *c_lst, size_t bu
 	}
 	*(joined_str) = '\0';
 	free((char *)s1);
-//	free(s2);
 	return (joined_str - (len_s1 + len_s2));
 }
 
@@ -148,21 +111,7 @@ void	ft_print_current_lst(t_list *c_lst)
 }
 
 /*************************** chain list fuction*****************************/
-/*
-t_list	*ft_lstchr(t_list *lst, int fd)
-{
-	t_list *tmp;
 
-	tmp = lst;
-	while (tmp)
-	{
-		if (tmp->fd == fd)
-			return (tmp);
-		tmp = tmp->next;
-	}
-	return (NULL);
-}
-*/
 t_list  *ft_lstlast(t_list *lst)
 {
         if (!lst)
@@ -200,27 +149,7 @@ void    ft_lstadd_back(t_list **alst, t_list *new)
                         ft_lstlast(*alst)->next = new;
         }
 }
-/*
-t_list	*ft_lstchr_feat_lstnew(t_list *lst, int fd)
-{
-	t_list	*tmp;
 
-	if (lst->fd == 0 || !lst)
-	{
-		lst->fd = fd;
-		return (lst);
-	}
-	else
-	{
-		tmp = ft_lstchr(lst,fd);
-		if (tmp)
-			return (tmp);
-		else
-			ft_lstadd_back(&lst, ft_lstnew(fd));
-	}
-	return (ft_lstlast(lst));
-}
-*/
 t_list	*ft_lstchr_feat_lstnew(t_list *lst, int fd)
 {
 	t_list	*tmp;
@@ -270,6 +199,11 @@ void	build_content(t_list *c_lst)
 	{
 		free(c_lst->content);
 		c_lst->content = NULL;
+		if (c_lst->buff_position == BUFFER_SIZE)
+		{
+			ret = read (c_lst->fd, c_lst->buff, BUFFER_SIZE);
+			c_lst->buff_position = 0;
+		}
 	}
 	while (1)
 	{
@@ -278,8 +212,13 @@ void	build_content(t_list *c_lst)
 //		printf("round %d buff_position = %zu\n\n", i++, c_lst->buff_position);
 		if (c_lst->buff[0] != '\0')
 			c_lst->content = ft_strjoinfree_s1(c_lst->content, c_lst->buff, c_lst, c_lst->buff_position);
+//		printf("still in the loopc_lst->content = %s\n", c_lst->content);
 		if (c_lst->content && !ft_strlen_gnl(c_lst->content, c_lst, 0))
+		{
+//			printf("I broke though here !!!!!!!!!!!\n");
 			break ;
+		}
+
 		ret = read (c_lst->fd, c_lst->buff, BUFFER_SIZE);
 		if (ret == BUFFER_SIZE)
 			c_lst->buff[BUFFER_SIZE] = '\0';
@@ -301,10 +240,6 @@ char	*get_next_line(int fd)
 	next_line = NULL;
 	c_lst = ft_lstchr_feat_lstnew(&lst, fd);
 //	printf("working on fd nbr %d\n", c_lst->fd);
-//	build_content(c_lst); printf("content 1 = [%s]\n", c_lst->content);
-//	build_content(c_lst); printf("content 2 = [%s]\n", c_lst->content);
-//	build_content(c_lst); printf("content 3 = [%s]\n", c_lst->content);
-//	build_content(c_lst); printf("content 4 = [%s]\n", c_lst->content);
 //	ft_print_list_result(&lst);
 //	ft_print_current_lst(c_lst);
 	build_content(c_lst);
