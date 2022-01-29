@@ -6,7 +6,7 @@
 /*   By: lchan <marvin@42.fr>                       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/25 14:38:47 by lchan             #+#    #+#             */
-/*   Updated: 2022/01/26 18:27:55 by lchan            ###   ########.fr       */
+/*   Updated: 2022/01/29 15:32:04 by lchan            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,7 +35,7 @@ typedef struct s_list
 	int		fd;
 	char	*content;
 	char	buff[BUFFER_SIZE + 1];
-	size_t	buff_position;
+	size_t	position;
 //	struct	s_list	*head;
 	struct	s_list	*next;
 }t_list;

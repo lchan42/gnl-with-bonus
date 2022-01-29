@@ -6,13 +6,13 @@
 /*   By: lchan <marvin@42.fr>                       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/25 13:58:12 by lchan             #+#    #+#             */
-/*   Updated: 2022/01/26 20:17:47 by lchan            ###   ########.fr       */
+/*   Updated: 2022/01/29 15:31:59 by lchan            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "get_next_line.h"
 
-size_t	ft_strlen_gnl(const char *str, t_list *c_lst, int on_switch)
+/*size_t	ft_strlen_gnl(const char *str, t_list *c_lst, int on_switch)
 {
 	size_t	index;
 	size_t	start;
@@ -23,9 +23,8 @@ size_t	ft_strlen_gnl(const char *str, t_list *c_lst, int on_switch)
 	start = 0;
 	if (on_switch)
 	{
-		start = c_lst-> buff_position;
-///		printf("start = %zu\n", start);
-		c_lst->buff_position = 0;
+		start = c_lst->position;
+		c_lst->position = 0;
 	}
 	while (str[index + start])
 	{
@@ -33,7 +32,7 @@ size_t	ft_strlen_gnl(const char *str, t_list *c_lst, int on_switch)
 		{
 //			printf("returning index = %zu", index + 1);
 			if (on_switch)
-				c_lst->buff_position = index + start + 1;
+				c_lst->position = index + start + 1;
 			else
 				return (0);
 			return (index + 1);
@@ -43,20 +42,18 @@ size_t	ft_strlen_gnl(const char *str, t_list *c_lst, int on_switch)
 	return (index);
 }
 
-
-char	*ft_strjoinfree_s1(const char *s1, const char *s2, t_list *c_lst, size_t buff_position)
+char	*ft_strjoinfree_s1(const char *s1, const char *s2, t_list *c_lst, size_t position)
 {
 	size_t		len_s1;
 	size_t		len_s2;
-	int		index;
-	char	*joined_str;
+	int			index;
+	char		*joined_str;
 
 	if (!s1 && !s2)
 		return (NULL);
-	
 	len_s1 = ft_strlen_gnl(s1, c_lst, 0);
 	len_s2 = ft_strlen_gnl(s2, c_lst, 1);
-//	printf("buff_position = %zu vs c_lst->buff_position = %zu\n", buff_position, c_lst->buff_position);
+//	printf("position = %zu vs c_lst->position = %zu\n", position, c_lst->position);
 //	printf("len_s1 = %zu, len_s2 = %zu\n",len_s1,  len_s2);
 	index = -1;
 	joined_str = (char *)malloc((len_s1 + len_s2 + 1) * sizeof(char));
@@ -67,11 +64,66 @@ char	*ft_strjoinfree_s1(const char *s1, const char *s2, t_list *c_lst, size_t bu
 	index = -1;
 	while (++index < len_s2)
 	{
-//		printf("adding : s2[%zu] = [%c]\n", buff_position,  s2[buff_position]);
-		*(joined_str++) = s2[buff_position++];
+//		printf("adding : s2[%zu] = [%c]\n", position,  s2[position]);
+		*(joined_str++) = s2[position++];
 	}
 	*(joined_str) = '\0';
 	free((char *)s1);
+	return (joined_str - (len_s1 + len_s2));
+}
+*/
+size_t	ft_strlen_gnl(const char *str, t_list *c_lst, int on_switch)//switch on = case buff, save position and return char to print
+{
+	size_t	start;
+	size_t	index;
+
+	if (!str)
+		return (0);//protection
+	start = 0;
+	if (on_switch)
+	{
+		start = c_lst->position;
+		c_lst->position = 0;
+	}
+	index = start;
+	while (str[index])
+	{
+		if (str[index] == '\n')
+		{
+			if (on_switch)
+				c_lst->position = index + 1; //on_switch : there is a \n in buff. save following position
+			else
+				return (0); // case there is a \n in the content.
+			return (index - start + 1); // on_switch : return number of char to copie into malloc
+		}
+		index++;
+	}
+	return (index - start); // case no \n. return the correct value.
+}
+
+char	*ft_strjoinfree_s1(const char *s1, const char *s2, t_list *c_lst, size_t position) // here position is not a pointer
+{
+	size_t		len_s1;
+	size_t		len_s2;
+	int			index;
+	char		*joined_str;
+
+	if (!s1 && !s2)
+		return (NULL);
+	len_s1 = ft_strlen_gnl(s1, c_lst, 0);
+	len_s2 = ft_strlen_gnl(s2, c_lst, 1);//this function change the c_lst->positon if there is a \n
+	index = -1;
+	joined_str = (char *)malloc((len_s1 + len_s2 + 1) * sizeof(char));
+	if (!joined_str)
+		return (NULL);
+	while (++index < len_s1)
+		*(joined_str++) = s1[index];
+	index = -1;
+	while (++index < len_s2)
+		*(joined_str++) = s2[position++];
+	*(joined_str) = '\0';
+	if (s1)
+		free((char *)s1);
 	return (joined_str - (len_s1 + len_s2));
 }
 
@@ -106,7 +158,7 @@ void	ft_print_current_lst(t_list *c_lst)
 	printf("\nthis is the current list content:\n");
 	printf("t_list nbr %d \n->fd = %d\n", i++, c_lst->fd);
 	printf("->content = %s\n", c_lst->content);
-	printf("->buff_position = %zu\n", c_lst->buff_position);
+	printf("->position = %zu\n", c_lst->position);
 	printf("->buffer = %s\n", c_lst->buff);	
 }
 
@@ -134,7 +186,7 @@ t_list  *ft_lstnew(int fd)
 		tmp->content = NULL;
 		while (++i < BUFFER_SIZE + 1 + sizeof(size_t))
 			tmp->buff[i] = '\0';
-		tmp->buff_position = 0;
+		tmp->position = 0;
         tmp->next = NULL;
         return (tmp);
 }
@@ -187,7 +239,7 @@ void    free_list(t_list *alst)
                 alst = tmp;
         }
 }
-
+/*
 void	build_content(t_list *c_lst)
 {
 	int	ret;
@@ -199,19 +251,19 @@ void	build_content(t_list *c_lst)
 	{
 		free(c_lst->content);
 		c_lst->content = NULL;
-		if (c_lst->buff_position == BUFFER_SIZE)
+		if (c_lst->position == BUFFER_SIZE)
 		{
 			ret = read (c_lst->fd, c_lst->buff, BUFFER_SIZE);
-			c_lst->buff_position = 0;
+			c_lst->position = 0;
 		}
 	}
 	while (1)
 	{
 //		printf("round %d content = %s\n", i, c_lst->content);
 //		printf("round %d buff = %s\n", i, c_lst->buff);
-//		printf("round %d buff_position = %zu\n\n", i++, c_lst->buff_position);
+//		printf("round %d position = %zu\n\n", i++, c_lst->position);
 		if (c_lst->buff[0] != '\0')
-			c_lst->content = ft_strjoinfree_s1(c_lst->content, c_lst->buff, c_lst, c_lst->buff_position);
+			c_lst->content = ft_strjoinfree_s1(c_lst->content, c_lst->buff, c_lst, c_lst->position);
 //		printf("still in the loopc_lst->content = %s\n", c_lst->content);
 		if (c_lst->content && !ft_strlen_gnl(c_lst->content, c_lst, 0))
 		{
@@ -227,15 +279,48 @@ void	build_content(t_list *c_lst)
 		if (!ret)
 			break ;
 	}
+}*/
+
+void	build_content(t_list *c_lst)
+{
+	int	ret;
+	int	i;
+
+	ret = 0;
+	i = 0;
+	if (c_lst->content)
+	{
+		free(c_lst->content);
+		c_lst->content = NULL;
+		if (c_lst->position == BUFFER_SIZE)
+		{
+			if (!read(c_lst->fd, c_lst->buff, BUFFER_SIZE))
+				c_lst->buff[0] = '\0';
+			c_lst->position = 0;
+		}
+	}
+	while (1)
+	{
+		if (c_lst->buff[0] != '\0')
+			c_lst->content = ft_strjoinfree_s1(c_lst->content, c_lst->buff, c_lst, c_lst->position);
+		if (c_lst->content && !ft_strlen_gnl(c_lst->content, c_lst, 0))
+			break ;
+		ret = read (c_lst->fd, c_lst->buff, BUFFER_SIZE);
+		if (ret == BUFFER_SIZE)
+			c_lst->buff[BUFFER_SIZE] = '\0';
+		else
+			c_lst->buff[ret] = '\0';
+		if (!ret)
+			break ;
+	}
 }
 
 /*********************************gnl******************************/
 char	*get_next_line(int fd)
 {
 	char			*next_line;
-	static t_list	lst;
+	static t_list	*lst;
 	t_list			*c_lst;
-//	static tab[MAX_OPEN];
 
 	next_line = NULL;
 	c_lst = ft_lstchr_feat_lstnew(&lst, fd);
