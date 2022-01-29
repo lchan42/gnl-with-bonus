@@ -6,7 +6,7 @@
 /*   By: lchan <marvin@42.fr>                       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/25 14:05:46 by lchan             #+#    #+#             */
-/*   Updated: 2022/01/29 15:32:06 by lchan            ###   ########.fr       */
+/*   Updated: 2022/01/29 20:04:41 by lchan            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,6 +14,7 @@
 
 int	main(int ac, char **av)
 {
+	int index = -1;
 	int fd;
 	int	fd2;
 	int	fd3;
@@ -30,11 +31,14 @@ int	main(int ac, char **av)
 //	else
 //		printf("fd = %d, open success\n", fd); printf("fd2 = %d, open success\n", fd2);
 //	printf("\n\n*****************First call of gnl with %s\n", av[1]); printf("	fd = %d\n", fd);
-	printf("%s", get_next_line(fd2)); 
-	printf("%s", get_next_line(fd2)); 
-//	printf("%s", get_next_line(fd3)); 
-	printf("%s", get_next_line(fd2)); 
-	printf("%s", get_next_line(fd2)); 
+	while (++index < 2)
+	{
+		printf("%s", get_next_line(fd)); 
+//		printf("%s", get_next_line(fd2)); 
+//		printf("%s", get_next_line(fd3));
+	}
+//	printf("%s", get_next_line(fd2)); 
+//	printf("%s", get_next_line(fd2)); 
 //	printf("%s", get_next_line(fd)); 
 //	printf("%s", get_next_line(fd)); 
 //	printf("%s", get_next_line(fd)); 

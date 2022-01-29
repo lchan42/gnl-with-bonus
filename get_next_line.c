@@ -6,11 +6,83 @@
 /*   By: lchan <marvin@42.fr>                       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/25 13:58:12 by lchan             #+#    #+#             */
-/*   Updated: 2022/01/29 15:31:59 by lchan            ###   ########.fr       */
+/*   Updated: 2022/01/29 20:04:39 by lchan            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "get_next_line.h"
+
+/*
+// ok for removal
+t_list  *ft_lstnew(int fd)
+{
+        t_list  *tmp;
+		int i;
+		int	ret;
+
+		i = -1;
+        tmp = malloc(sizeof(t_list));
+        if (!tmp)
+                return (NULL);
+//		if (read (fd, tmp->buff, BUFFER_SIZE) <= 0) //if there is nothing to read or read is not possible free tmp and return null)
+//		{
+//			free(tmp);
+//			return NULL;(should result in add null to the back);
+//		}
+        tmp->fd = fd;
+		tmp->content = NULL;
+		while (++i < BUFFER_SIZE + 1 + sizeof(size_t))//gonna have to remove this line if I decide to read above 
+			tmp->buff[i] = '\0';// gonna have to remove this list coz i m reading above already
+		tmp->position = 0;
+        tmp->next = NULL;
+        return (tmp);
+}
+
+t_list  *ft_lstlast(t_list *lst)
+{
+        if (!lst)
+                return (NULL);
+        while (lst->next)
+                lst = lst->next;
+        return (lst);
+}
+
+void    ft_lstadd_back(t_list **alst, t_list *new)
+{
+        if (alst)
+        {
+                if (*alst == NULL)
+                        *alst = new;
+                else
+                        ft_lstlast(*alst)->next = new;
+        }
+}
+
+t_list	*ft_lstchr_feat_lstnew(t_list *lst, int fd)
+{
+	t_list	*tmp;
+
+	if (lst->fd == 0 || !lst)
+	{
+		lst->fd = fd;
+		return (lst);
+	}
+	else
+	{
+		tmp = lst;
+		while (tmp)
+		{
+			if (tmp->fd == fd)
+				return (tmp);
+			tmp = tmp->next;
+		}
+		if (!tmp)
+			ft_lstadd_back(&lst, ft_lstnew(fd));
+	}
+	return (ft_lstlast(lst));
+}
+// of for removal
+*/
 
 /*size_t	ft_strlen_gnl(const char *str, t_list *c_lst, int on_switch)
 {
@@ -71,6 +143,88 @@ char	*ft_strjoinfree_s1(const char *s1, const char *s2, t_list *c_lst, size_t po
 	free((char *)s1);
 	return (joined_str - (len_s1 + len_s2));
 }
+
+char	*get_next_line(int fd)
+{
+	char			*next_line;
+	static t_list	*lst;
+	t_list			*c_lst;
+
+	next_line = NULL;
+	c_lst = ft_lstchr_feat_lstnew(lst, fd);//find correct fd in the list
+	if (c_lst && c_lst->content)
+	{
+		free(c_lst->content);
+		c_lst->content = NULL;
+		if (c_lst->position == BUFFER_SIZE)
+		{
+			if (!read(c_lst->fd, c_lst->buff, BUFFER_SIZE)) // read again coz position is at buffer size;
+				c_lst->buff[0] = '\0';// need to free_block instead;
+			c_lst->position = 0;//reset position coz position is at buffer size. 
+		}
+	}
+//	printf("working on fd nbr %d\n", c_lst->fd);
+//	ft_print_list_result(&lst);
+//	ft_print_current_lst(c_lst);
+	build_content(c_lst);
+	return (c_lst->content);
+}
+
+t_list	*ft_lstchr_feat_addback(t_list *lst, int fd)
+{
+	if (lst)
+	{
+		while (lst->next && lst->fd != fd)
+			lst = lst->next;
+		if (lst->fd == fd)
+			return (lst);
+		lst->next = malloc(sizeof(t_list));
+		if (!lst->next)
+			return (NULL);
+		lst = lst->next;
+	}
+	else
+		lst = malloc(sizeof(t_list)); //i ve forgot to protect this malloc
+	if (!read(fd, lst->buff, BUFFER_SIZE)) //case nothing to read (already read of unvalid fd)
+	{
+		free(lst);
+		return (NULL);
+	}
+	lst->fd = fd;
+	lst->content = NULL;
+	lst->position = 0;
+	lst->next = NULL;
+	return (lst);
+}
+
+t_list	*ft_lstchr_feat_addback(t_list *lst, int fd)
+{
+	if (!lst)
+		lst = malloc(sizeof(t_list));
+	else 
+	{
+		while (lst->next && lst->fd != fd)
+			lst = lst->next;
+		if (lst->fd == fd)
+			return (lst);
+		lst->next = malloc(sizeof(t_list));
+		lst = lst->next;//if malloc succes, lst = lst->next, if not lst = NULL
+	}
+	if (!lst)
+		return (NULL);
+	lst->fd = read(fd, lst->buff, BUFFER_SIZE); //save the return of read inside fd
+	if (lst->fd > 0) //case nothing to read (already read of unvalid fd)
+	{
+		lst->content = NULL;
+		lst->buff[lst->fd] = '\0';
+		lst->fd = fd;
+		lst->position = 0;
+		lst->next = NULL;
+		return (lst);
+	}
+	free(lst);
+	return (NULL);
+}
 */
 size_t	ft_strlen_gnl(const char *str, t_list *c_lst, int on_switch)//switch on = case buff, save position and return char to print
 {
@@ -101,8 +255,8 @@ size_t	ft_strlen_gnl(const char *str, t_list *c_lst, int on_switch)//switch on =
 	return (index - start); // case no \n. return the correct value.
 }
 
-char	*ft_strjoinfree_s1(const char *s1, const char *s2, t_list *c_lst, size_t position) // here position is not a pointer
-{
+char	*ft_strjoinfree_s1(const char *s1, const char *s2, t_list *c_lst, size_t position)	// here position is not a pointer
+{																							//cant remove s1 and s2 and use t_list
 	size_t		len_s1;
 	size_t		len_s2;
 	int			index;
@@ -164,80 +318,66 @@ void	ft_print_current_lst(t_list *c_lst)
 
 /*************************** chain list fuction*****************************/
 
-t_list  *ft_lstlast(t_list *lst)
+
+t_list	*ft_lstchr_feat_addback(t_list *lst, int fd)
 {
-        if (!lst)
-                return (NULL);
-        while (lst->next)
-                lst = lst->next;
-        return (lst);
-}
 
-t_list  *ft_lstnew(int fd)
-{
-        t_list  *tmp;
-		int i;
-
-		i = -1;
-        tmp = malloc(sizeof(t_list));
-        if (!tmp)
-                return (NULL);
-        tmp->fd = fd;
-		tmp->content = NULL;
-		while (++i < BUFFER_SIZE + 1 + sizeof(size_t))
-			tmp->buff[i] = '\0';
-		tmp->position = 0;
-        tmp->next = NULL;
-        return (tmp);
-}
-
-void    ft_lstadd_back(t_list **alst, t_list *new)
-{
-        if (alst)
-        {
-                if (*alst == NULL)
-                        *alst = new;
-                else
-                        ft_lstlast(*alst)->next = new;
-        }
-}
-
-t_list	*ft_lstchr_feat_lstnew(t_list *lst, int fd)
-{
-	t_list	*tmp;
-
-	if (lst->fd == 0 || !lst)
-	{
-		lst->fd = fd;
-		return (lst);
+	if (lst)
+	{	
+		write(1, "HERRRRRRRRE!\n", 13);
+		while (lst->next && lst->fd != fd)
+			lst = lst->next;
+		if (lst->fd == fd)
+		{
+			printf("returning fd = %d", lst->fd);
+			return (lst);
+		}
+		lst->next = malloc(sizeof(t_list));
+		lst = lst->next;//if malloc failed, lst = NULL
 	}
 	else
+		lst = malloc(sizeof(t_list));
+	if (!lst)
+		return (NULL);
+	lst->fd = read(fd, lst->buff, BUFFER_SIZE); //save the return of read inside fd, case sending multiple time same fd
+	if (lst->fd > 0) //case nothing to read (already read of unvalid fd)
 	{
-		tmp = lst;
-		while (tmp)
-		{
-			if (tmp->fd == fd)
-				return (tmp);
-			tmp = tmp->next;
-		}
-		if (!tmp)
-			ft_lstadd_back(&lst, ft_lstnew(fd));
+		lst->content = NULL;
+		lst->buff[lst->fd] = '\0';
+		lst->fd = fd;
+		lst->position = 0;
+		lst->next = NULL;
+		return (lst);
 	}
-	return (ft_lstlast(lst));
+	free(lst);
+	return (NULL);
 }
 
-void    free_list(t_list *alst)
+void    free_list(t_list *lst, int fd, int option_block) //add on off switch = a block or the whole liste;
 {
-        t_list  *tmp;
+	t_list  *tmp;
 
-        tmp = alst;
-        while (tmp)
-        {
-                free(tmp->content);
-                tmp = tmp->next;
-                free(alst);
-                alst = tmp;
-        }
+	if (option_block)
+	{
+		while (lst->fd != fd)
+		{
+			tmp = lst;
+			lst = lst->next;
+		}
+		tmp->next = lst->next;
+		if (lst->content)
+			free(lst->content);
+		free(lst);
+		return ;
+	}
+	while (lst)
+	{
+		tmp = lst;
+		lst = lst->next;
+		if (tmp->content)
+			free(tmp->content);
+		free(tmp);
+	}
 }
 /*
 void	build_content(t_list *c_lst)
@@ -288,23 +428,14 @@ void	build_content(t_list *c_lst)
 
 	ret = 0;
 	i = 0;
-	if (c_lst->content)
-	{
-		free(c_lst->content);
-		c_lst->content = NULL;
-		if (c_lst->position == BUFFER_SIZE)
-		{
-			if (!read(c_lst->fd, c_lst->buff, BUFFER_SIZE))
-				c_lst->buff[0] = '\0';
-			c_lst->position = 0;
-		}
-	}
 	while (1)
 	{
-		if (c_lst->buff[0] != '\0')
-			c_lst->content = ft_strjoinfree_s1(c_lst->content, c_lst->buff, c_lst, c_lst->position);
+//		if (c_lst->buff[0] != '\0')//not sure about this line(case empty file, or only with \0 ?)
+		c_lst->content = ft_strjoinfree_s1(c_lst->content, c_lst->buff, c_lst, c_lst->position);
+		write(1, "I have not segvfault\n",21);
 		if (c_lst->content && !ft_strlen_gnl(c_lst->content, c_lst, 0))
 			break ;
+
 		ret = read (c_lst->fd, c_lst->buff, BUFFER_SIZE);
 		if (ret == BUFFER_SIZE)
 			c_lst->buff[BUFFER_SIZE] = '\0';
@@ -318,15 +449,27 @@ void	build_content(t_list *c_lst)
 /*********************************gnl******************************/
 char	*get_next_line(int fd)
 {
-	char			*next_line;
 	static t_list	*lst;
 	t_list			*c_lst;
 
-	next_line = NULL;
-	c_lst = ft_lstchr_feat_lstnew(&lst, fd);
+	c_lst = ft_lstchr_feat_addback(lst, fd);//find correct fd in the list
+	if (c_lst && c_lst->content)
+	{
+		free(c_lst->content);
+		c_lst->content = NULL;
+		if (c_lst->position == BUFFER_SIZE)
+		{
+			if (!read(c_lst->fd, c_lst->buff, BUFFER_SIZE)) // read again coz position is at buffer size;
+				free(c_lst);// need to free_block instead;
+			else
+				c_lst->position = 0;//reset position coz position is at buffer size. 
+		}
+	}
 //	printf("working on fd nbr %d\n", c_lst->fd);
 //	ft_print_list_result(&lst);
+	printf("working of fd %d\n", fd);
+	if (c_lst)
+		build_content(c_lst);
 //	ft_print_current_lst(c_lst);
-	build_content(c_lst);
 	return (c_lst->content);
 }
