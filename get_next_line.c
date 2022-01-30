@@ -6,7 +6,7 @@
 /*   By: lchan <marvin@42.fr>                       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/25 13:58:12 by lchan             #+#    #+#             */
-/*   Updated: 2022/01/30 16:58:58 by lchan            ###   ########.fr       */
+/*   Updated: 2022/01/30 20:28:25 by lchan            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -144,6 +144,33 @@ char	*ft_strjoinfree_s1(const char *s1, const char *s2, t_list *c_lst, size_t po
 	return (joined_str - (len_s1 + len_s2));
 }
 
+
+char	*ft_strjoinfree_s1(const char *s1, const char *s2, t_list *c_lst, size_t position)	// here position is not a pointer
+{																							//cant remove s1 and s2 and use t_list
+	size_t		len_s1;
+	size_t		len_s2;
+	int			index;
+	char		*joined_str;
+
+	if (!s1 && !s2)
+		return (NULL);
+	len_s1 = ft_strlen_gnl(s1, c_lst, 0);
+	len_s2 = ft_strlen_gnl(s2, c_lst, 1);//this function change the c_lst->positon if there is a \n
+	index = -1;
+	joined_str = (char *)malloc((len_s1 + len_s2 + 1) * sizeof(char));
+	if (!joined_str)
+		return (NULL);
+	while (++index < len_s1)
+		*(joined_str++) = s1[index];
+	index = -1;
+	while (++index < len_s2)
+		*(joined_str++) = s2[position++];
+	*(joined_str) = '\0';
+	if (s1)
+		free((char *)s1);
+	return (joined_str - (len_s1 + len_s2));
+}
+
 char	*get_next_line(int fd)
 {
 	char			*next_line;
@@ -225,7 +252,74 @@ t_list	*ft_lstchr_feat_addback(t_list *lst, int fd)
 	free(lst);
 	return (NULL);
 }
+
+t_list	*ft_lstchr_feat_addback(t_list **lst, int fd)
+{
+		
+	printf("adresse if lst in addback fonction : [%p]\n", lst);
+	if (*lst)
+	{	
+		write(1, "HERRRRRRRRE!\n", 13);
+		while ((*lst)->next && (*lst)->fd != fd)
+			(*lst) = (*lst)->next;
+		if ((*lst)->fd == fd)
+		{
+			printf("returning fd = %d", (*lst)->fd);
+			return ((*lst));
+		}
+		(*lst)->next = malloc(sizeof(t_list));
+		(*lst) = (*lst)->next;//if malloc failed, lst = NULL
+	}
+	else
+	{
+		(*lst) = malloc(sizeof(t_list));
+		printf("creating lst\n");
+	}
+	if (!(*lst))
+		return (NULL);
+	(*lst)->fd = read(fd, (*lst)->buff, BUFFER_SIZE); //save the return of read inside fd, case sending multiple time same fd
+	if ((*lst)->fd > 0) //case nothing to read (already read of unvalid fd)
+	{
+		(*lst)->content = NULL;
+		(*lst)->buff[(*lst)->fd] = '\0';
+		(*lst)->fd = fd;
+		(*lst)->position = 0;
+		(*lst)->next = NULL;
+		return (*lst);
+	}
+	printf("freee lst\n");
+	free((*lst));
+	return (NULL);
+}
+
+void    free_list(t_list *lst, int fd, int option_block) //add on off switch = a block or the whole liste;
+{
+	t_list  *tmp;
+
+	if (option_block)
+	{
+		while (lst->fd != fd)
+		{
+			tmp = lst;
+			lst = lst->next;
+		}
+		tmp->next = lst->next;
+		if (lst->content)
+			free(lst->content);
+		free(lst);
+		return ;
+	}
+	while (lst)
+	{
+		tmp = lst;
+		lst = lst->next;
+		if (tmp->content)
+			free(tmp->content);
+		free(tmp);
+	}
+}
 */
+/*
 size_t	ft_strlen_gnl(const char *str, t_list *c_lst, int on_switch)//switch on = case buff, save position and return char to print
 {
 	size_t	start;
@@ -255,32 +349,121 @@ size_t	ft_strlen_gnl(const char *str, t_list *c_lst, int on_switch)//switch on =
 	return (index - start); // case no \n. return the correct value.
 }
 
-char	*ft_strjoinfree_s1(const char *s1, const char *s2, t_list *c_lst, size_t position)	// here position is not a pointer
+char	*ft_strjoinfree_s1(t_list *c_lst, size_t position)	// here position is not a pointer
 {																							//cant remove s1 and s2 and use t_list
 	size_t		len_s1;
 	size_t		len_s2;
 	int			index;
 	char		*joined_str;
 
-	if (!s1 && !s2)
+	if (!c_lst->content && !c_lst->buff[0])
 		return (NULL);
-	len_s1 = ft_strlen_gnl(s1, c_lst, 0);
-	len_s2 = ft_strlen_gnl(s2, c_lst, 1);//this function change the c_lst->positon if there is a \n
+	len_s1 = ft_strlen_gnl(c_lst->content, c_lst, 0);
+	len_s2 = ft_strlen_gnl(c_lst->buff, c_lst, 1);//this function change the c_lst->positon if there is a \n
 	index = -1;
 	joined_str = (char *)malloc((len_s1 + len_s2 + 1) * sizeof(char));
 	if (!joined_str)
 		return (NULL);
 	while (++index < len_s1)
-		*(joined_str++) = s1[index];
+		*(joined_str++) = c_lst->content[index];
 	index = -1;
 	while (++index < len_s2)
-		*(joined_str++) = s2[position++];
+		*(joined_str++) = c_lst->buff[position++];
 	*(joined_str) = '\0';
-	if (s1)
-		free((char *)s1);
+	if (c_lst->content)
+		free(c_lst->content);
+	return (joined_str - (len_s1 + len_s2));
+}
+*/
+size_t	ft_strlen_gnl(const char *str, t_list *c_lst, int on_switch)
+	//switch on = case buff, save position and return char to print
+{
+	size_t	start;
+	size_t	index;
+
+	if (!str)
+		return (0);//protection
+	start = 0;
+	if (on_switch)
+	{
+		start = c_lst->position;
+		c_lst->position = 0;
+	}
+	index = start;
+	while (str[index])
+	{
+		if (str[index] == '\n')
+		{
+			if (on_switch)
+				c_lst->position = index + 1; //on_switch : there is a \n in buff. save following position
+			else
+				return (0); // case there is a \n in the content.
+			return (index - start + 1); // on_switch : return number of char to copie into malloc
+		}
+		index++;
+	}
+	return (index - start); // case no \n. return the correct value.
+}
+
+char	*ft_strjoinfree_s1(t_list *c_lst, size_t position)	// here position is not a pointer
+{
+	size_t		len_s1;
+	size_t		len_s2;
+	int			index;
+	char		*joined_str;
+
+	if (!c_lst->content && !c_lst->buff[0])
+		return (NULL);
+	len_s1 = ft_strlen_gnl(c_lst->content, c_lst, 0);
+	len_s2 = ft_strlen_gnl(c_lst->buff, c_lst, 1);//this function change the c_lst->positon if there is a \n
+	index = -1;
+	joined_str = (char *)malloc((len_s1 + len_s2 + 1) * sizeof(char));
+	if (!joined_str)
+		return (NULL);
+	while (++index < len_s1)
+		*(joined_str++) = c_lst->content[index];
+	index = -1;
+	while (++index < len_s2)
+	{
+		*(joined_str++) = c_lst->buff[position];
+		c_lst->buff[position++] = '\0';
+	}
+	*(joined_str) = '\0';
+	if (c_lst->content)
+		free(c_lst->content);
 	return (joined_str - (len_s1 + len_s2));
 }
 
+/*
+char	*ft_strjoinfree_s1(t_list *c_lst, size_t position)	// here position is not a pointer
+{
+	size_t		len_s1;
+	size_t		len_s2;
+	int			index;
+	char		*joined_str;
+
+	if (!c_lst->content && !c_lst->buff[0])
+		return (NULL);
+	len_s1 = ft_strlen_gnl(c_lst->content, c_lst, 0);
+	len_s2 = ft_strlen_gnl(c_lst->buff, c_lst, 1);//this function change the c_lst->positon if there is a \n
+	index = -1;
+	joined_str = (char *)malloc((len_s1 + len_s2 + 1) * sizeof(char));
+	if (!joined_str)
+		return (NULL);
+	while (++index < len_s1)
+		*(joined_str++) = c_lst->content[index];
+	index = -1;
+	while (++index < len_s2)
+	{
+		*(joined_str++) = c_lst->buff[position];
+		c_lst->buff[position++] = '\0';
+	}
+	*(joined_str) = '\0';
+	if (c_lst->content)
+		free(c_lst->content);
+	return (joined_str - (len_s1 + len_s2));
+}
+*/
 /***********************printf info function to delete *******************/
 void	del_print_lst_content_and_address(t_list *lst)
 {
@@ -329,75 +512,6 @@ void	ft_print_lst_address(t_list *lst)
 }
 
 /*************************** chain list fuction*****************************/
-
-/*
-t_list	*ft_lstchr_feat_addback(t_list **lst, int fd)
-{
-		
-	printf("adresse if lst in addback fonction : [%p]\n", lst);
-	if (*lst)
-	{	
-		write(1, "HERRRRRRRRE!\n", 13);
-		while ((*lst)->next && (*lst)->fd != fd)
-			(*lst) = (*lst)->next;
-		if ((*lst)->fd == fd)
-		{
-			printf("returning fd = %d", (*lst)->fd);
-			return ((*lst));
-		}
-		(*lst)->next = malloc(sizeof(t_list));
-		(*lst) = (*lst)->next;//if malloc failed, lst = NULL
-	}
-	else
-	{
-		(*lst) = malloc(sizeof(t_list));
-		printf("creating lst\n");
-	}
-	if (!(*lst))
-		return (NULL);
-	(*lst)->fd = read(fd, (*lst)->buff, BUFFER_SIZE); //save the return of read inside fd, case sending multiple time same fd
-	if ((*lst)->fd > 0) //case nothing to read (already read of unvalid fd)
-	{
-		(*lst)->content = NULL;
-		(*lst)->buff[(*lst)->fd] = '\0';
-		(*lst)->fd = fd;
-		(*lst)->position = 0;
-		(*lst)->next = NULL;
-		return (*lst);
-	}
-	printf("freee lst\n");
-	free((*lst));
-	return (NULL);
-}
-*/
-/*
-void    free_list(t_list *lst, int fd, int option_block) //add on off switch = a block or the whole liste;
-{
-	t_list  *tmp;
-
-	if (option_block)
-	{
-		while (lst->fd != fd)
-		{
-			tmp = lst;
-			lst = lst->next;
-		}
-		tmp->next = lst->next;
-		if (lst->content)
-			free(lst->content);
-		free(lst);
-		return ;
-	}
-	while (lst)
-	{
-		tmp = lst;
-		lst = lst->next;
-		if (tmp->content)
-			free(tmp->content);
-		free(tmp);
-	}
-}
-*/
 void	free_list(t_list *lst)
 {
 	t_list	*tmp;
@@ -471,6 +585,7 @@ void	build_content(t_list *c_lst)
 	}
 }
 */
+/*
 void	build_content(t_list *c_lst)
 {
 	int	ret;
@@ -491,34 +606,61 @@ void	build_content(t_list *c_lst)
 	while (1)
 	{
 		if (c_lst->buff[0] != '\0')//not sure about this line(case empty file, or only with \0 ?)
-		c_lst->content = ft_strjoinfree_s1(c_lst->content, c_lst->buff, c_lst, c_lst->position);
-		write(1, "I have not segvfault\n",21);
+		c_lst->content = ft_strjoinfree_s1(c_lst, c_lst->position);
 		if (c_lst->content && !ft_strlen_gnl(c_lst->content, c_lst, 0))
+		{
+		//	printf("using this breakin exit coz there is a \n in content\n");
 			break ;
+		}
 		ret = read (c_lst->fd, c_lst->buff, BUFFER_SIZE);
+		printf("ret = %d\n", ret);
 		if (ret == BUFFER_SIZE)
 			c_lst->buff[BUFFER_SIZE] = '\0';
 		else
 			c_lst->buff[ret] = '\0';
 		if (!ret)
+		{
+			printf("I am gonna break\n");
 			break ;
+		}
 	}
 }
-/*
+*/
+int	ft_strchr_booleen(const char *str, char c)
+{
+	while (*str)
+	{
+		if (*str == (unsigned char)c)
+			return (1);
+		str++;
+	}
+	return (0);
+}
+
 void	build_content(t_list *lst, t_list *c_lst)
 {
 	int	ret;
 
+	if (c_lst && c_lst->position >= BUFFER_SIZE)
+		c_lst->position = 0;
+	if (c_lst && c_lst->buff[c_lst->position])
+		c_lst->content = ft_strjoinfree_s1(c_lst, c_lst->position);
 	ret = read(c_lst->fd, c_lst->buff,BUFFER_SIZE);
-	if (ret == -1)
+	if (ret <= 0)
 	{
-		free_list(lst);
-		break;
+		if (ret == 0)
+			free_block(lst, c_lst->fd);
+		else
+			free_list(lst);
+		return ;
 	}
-
-	build_content(t_list *c_lst)
+	c_lst->buff[ret] = '\0';
+	if (c_lst->content && ft_strchr_booleen(c_lst->content, '\n'))// might have to use ft_strlen here
+		return ;
+	else if (c_lst)
+		build_content(lst, c_lst);
 }
-*/
+
 t_list	*ft_lst_init_addback(t_list *lst, int fd)
 {
 	t_list	*tmp;
@@ -554,9 +696,14 @@ char	*get_next_line(int fd)
 		c_lst = c_lst->next;
 	if (!c_lst)
 		c_lst = ft_lst_init_addback(&lst, fd);
-	build_content(c_lst);
+	if (c_lst->content)
+	{
+		free(c_lst->content);
+		c_lst->content = NULL;
+	}
+	build_content(&lst, c_lst);
 //	ft_print_lst_address(&lst);
-	if (c_lst)
+	if (lst.next && c_lst)
 		return (c_lst->content);
 	else
 		return NULL;

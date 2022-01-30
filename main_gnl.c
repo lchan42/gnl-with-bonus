@@ -6,12 +6,33 @@
 /*   By: lchan <marvin@42.fr>                       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/25 14:05:46 by lchan             #+#    #+#             */
-/*   Updated: 2022/01/30 16:59:02 by lchan            ###   ########.fr       */
+/*   Updated: 2022/01/30 20:28:30 by lchan            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include"get_next_line.h"
 
+int	main(int ac, char **av)
+{
+	int index = -1;
+	int fd;
+
+	fd = open("test.txt", O_RDONLY);
+	if (fd == -1)
+	{
+		printf("open error\n");
+		return (0);
+	}
+	while (++index < 10)
+		printf("call %d : %s",index,  get_next_line(fd)); 
+	if (close(fd) == -1)
+		printf("close error\n");
+	return (0);
+}
+//gcc -g3 -fsanitize=address main_gnl.c get_next_line.c -D BUFFER_SIZE=8 && ./ a.out
+//gcc -g3 -fsanitize=address main_gnl.c get_next_line.c -D BUFFER_SIZE=8 && lldb a.out
+
+/*
 int	main(int ac, char **av)
 {
 	int index = -1;
@@ -34,7 +55,7 @@ int	main(int ac, char **av)
 	while (++index < 10)
 	{
 		printf("%s", get_next_line(fd)); 
-		printf("%s", get_next_line(fd2)); 
+//		printf("%s", get_next_line(fd2)); 
 //		printf("%s", get_next_line(fd2)); 
 //		printf("%s", get_next_line(fd3));
 	}
@@ -42,21 +63,11 @@ int	main(int ac, char **av)
 //	printf("%s", get_next_line(fd2)); 
 //	printf("%s", get_next_line(fd)); 
 //	printf("%s", get_next_line(fd)); 
-//	printf("%s", get_next_line(fd)); 
-//	printf("%s", get_next_line(fd)); 
-//	printf("%s", get_next_line(fd)); 
-//	printf("%s", get_next_line(fd)); 
-//	printf("%s", get_next_line(fd)); 
-/*	printf("\n\n*****************Second call of gnl\n"); printf("	fd = %d\n", fd);
-	get_next_line(fd); 
-	printf("\n\n*****************Third call of gnl with %s\n", av[2]); printf("	fd = %d\n", fd2);
-	get_next_line(fd2);
-	printf("\n\n*****************fourth call of gnl qith %s\n", av[3]); printf("	fd = %d\n", fd3);
-	get_next_line(fd3);*/
+	get_next_line(fd3);
 	if (close(fd) == -1 || close(fd2) == -1)
 		printf("close error\n");
 	return (0);
 }
-
+*/
 //gcc -g3 -fsanitize=address main_gnl.c get_next_line.c -D BUFFER_SIZE=10 && ./a.out test.txt test2.txt
 //gcc -g3 -fsanitize=address main_gnl.c get_next_line.c -D BUFFER_SIZE=10 && ./a.out test.txt test2.txt test3.txt | cat -e
