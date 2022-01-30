@@ -6,7 +6,7 @@
 /*   By: lchan <marvin@42.fr>                       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/25 14:05:46 by lchan             #+#    #+#             */
-/*   Updated: 2022/01/29 20:04:41 by lchan            ###   ########.fr       */
+/*   Updated: 2022/01/30 16:59:02 by lchan            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,9 +31,10 @@ int	main(int ac, char **av)
 //	else
 //		printf("fd = %d, open success\n", fd); printf("fd2 = %d, open success\n", fd2);
 //	printf("\n\n*****************First call of gnl with %s\n", av[1]); printf("	fd = %d\n", fd);
-	while (++index < 2)
+	while (++index < 10)
 	{
 		printf("%s", get_next_line(fd)); 
+		printf("%s", get_next_line(fd2)); 
 //		printf("%s", get_next_line(fd2)); 
 //		printf("%s", get_next_line(fd3));
 	}
