@@ -420,14 +420,11 @@ char	*ft_strjoinfree_s1(t_list *c_lst, size_t position)	// here position is not 
 	joined_str = (char *)malloc((len_s1 + len_s2 + 1) * sizeof(char));
 	if (!joined_str)
 		return (NULL);
-	while (++index < len_s1)
+	while (++index <(int)len_s1)
 		*(joined_str++) = c_lst->content[index];
 	index = -1;
-	while (++index < len_s2)
-	{
-		*(joined_str++) = c_lst->buff[position];
-		c_lst->buff[position++] = '\0';
-	}
+	while (++index < (int)len_s2)
+		*(joined_str++) = c_lst->buff[position++];
 	*(joined_str) = '\0';
 	if (c_lst->content)
 		free(c_lst->content);
@@ -641,16 +638,21 @@ void	build_content(t_list *lst, t_list *c_lst)
 {
 	int	ret;
 
+	ret = 0;
 	if (c_lst && c_lst->position >= BUFFER_SIZE)
+	{
 		c_lst->position = 0;
+		c_lst->buff[c_lst->position] = '\0';
+	}
 	if (c_lst && c_lst->buff[c_lst->position])
 		c_lst->content = ft_strjoinfree_s1(c_lst, c_lst->position);
-	ret = read(c_lst->fd, c_lst->buff,BUFFER_SIZE);
+	if (c_lst && c_lst->position == 0)
+		ret = read(c_lst->fd, c_lst->buff,BUFFER_SIZE);
 	if (ret <= 0)
 	{
-		if (ret == 0)
+		if (ret == 0 && c_lst->buff[c_lst->position] == '\0' && !c_lst->content)
 			free_block(lst, c_lst->fd);
-		else
+		else if (ret == -1)
 			free_list(lst);
 		return ;
 	}

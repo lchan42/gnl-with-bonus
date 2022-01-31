@@ -29,7 +29,7 @@ int	main(int ac, char **av)
 		printf("close error\n");
 	return (0);
 }
-//gcc -g3 -fsanitize=address main_gnl.c get_next_line.c -D BUFFER_SIZE=8 && ./ a.out
+//gcc -g3 -fsanitize=address main_gnl.c get_next_line.c -D BUFFER_SIZE=8 && ./a.out
 //gcc -g3 -fsanitize=address main_gnl.c get_next_line.c -D BUFFER_SIZE=8 && lldb a.out
 
 /*
