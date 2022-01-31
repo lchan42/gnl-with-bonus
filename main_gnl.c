@@ -6,7 +6,7 @@
 /*   By: lchan <marvin@42.fr>                       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/25 14:05:46 by lchan             #+#    #+#             */
-/*   Updated: 2022/01/30 20:28:30 by lchan            ###   ########.fr       */
+/*   Updated: 2022/01/31 17:27:45 by lchan            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,6 +16,8 @@ int	main(int ac, char **av)
 {
 	int index = -1;
 	int fd;
+	(void) ac;
+	(void) av;
 
 	fd = open("test.txt", O_RDONLY);
 	if (fd == -1)

@@ -6,7 +6,7 @@
 /*   By: lchan <marvin@42.fr>                       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/25 13:58:12 by lchan             #+#    #+#             */
-/*   Updated: 2022/01/30 20:28:25 by lchan            ###   ########.fr       */
+/*   Updated: 2022/01/31 17:27:40 by lchan            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -518,18 +518,25 @@ void	free_list(t_list *lst)
 		tmp = lst;
 		lst = lst->next;
 		if (tmp->content)
+		{
 			free(tmp->content);
+			tmp->content = NULL;
+		}
 		free(tmp);
+		tmp = NULL;
 	}
 }
-
+/*
 void free_block(t_list *lst, int fd) //because I use a static t_list, my first mod is not malloced. so I dont need to free it
 {
 	t_list	*tmp_head;
 	t_list	*tmp_tail;
 
+	if (!lst)
+		return ;
 	tmp_head = lst;
-	tmp_tail = tmp_head->next;	
+	if (tmp_head->next)
+		tmp_tail = tmp_head->next;
 	while (tmp_tail->fd != fd)
 	{
 		tmp_head = tmp_head->next;
@@ -537,9 +544,95 @@ void free_block(t_list *lst, int fd) //because I use a static t_list, my first m
 	}
 	tmp_head->next = tmp_tail->next;
 	if (tmp_tail->content)
+	{
 		free(tmp_tail->content);
+		tmp_tail->content = NULL;
+	}
 	free(tmp_tail);
+	tmp_tail = NULL;
 }
+
+void free_block(t_list *lst, int fd) //because I use a static t_list, my first mod is not malloced. so I dont need to free it
+{
+	t_list	*tmp_head;
+	t_list	*tmp_tail;
+
+	if (!lst)
+		return ;
+	if (lst->fd == fd)
+		tmp_tail = lst;
+	else
+	{
+		tmp_head = lst;
+		tmp_tail = tmp_head->next;
+		while (tmp_tail->fd != fd)
+		{
+			tmp_head = tmp_head->next;
+			tmp_tail = tmp_tail->next;
+		}
+		tmp_head->next = tmp_tail->next;
+	}
+	if (tmp_tail->content)
+	{
+		free(tmp_tail->content);
+		tmp_tail->content = NULL;
+	}
+	free(tmp_tail);
+	tmp_tail = NULL;
+}
+*/
+void free_block(t_list **lst, int fd)
+{
+	t_list	*tmp_head;
+	t_list	*tmp_tail;
+
+	if (!(*lst))
+		return ;
+	if ((*lst)->fd == fd)
+		tmp_tail = (*lst);
+	else
+	{
+		tmp_head = (*lst);
+		tmp_tail = tmp_head->next;
+		while (tmp_tail->fd != fd)
+		{
+			tmp_head = tmp_head->next;
+			tmp_tail = tmp_tail->next;
+		}
+		tmp_head->next = tmp_tail->next;
+	}
+	if (tmp_tail->content)
+	{
+		free(tmp_tail->content);
+		tmp_tail->content = NULL;
+	}
+	free(tmp_tail);
+	tmp_tail = NULL;
+}
+
+
+void free_block(t_list **lst, int fd)
+{
+	t_list	*tmp_1
+	t_list	*tmp_2
+
+	if (!(*lst))
+		return ;
+	tmp_2 = (*lst);
+	if (tmp_1->fd != fd)
+		while (tmp_2->next && tmp_2->fd != fd)
+			tmp_2 = tmp_2->next;
+	tmp_1 = tmp_2;
+	tmp_1->next = tmp2->next;
+	if (tmp_2->content)
+		free(tmp_2->content
+	free(tmp_2)
+	tmp_2 == NULL;
+	if ((*lst)->fd == fd)
+		lst == NULL;
+
+}
+
 /*
 void	build_content(t_list *c_lst)
 {
@@ -662,7 +755,7 @@ void	build_content(t_list *lst, t_list *c_lst)
 	else if (c_lst)
 		build_content(lst, c_lst);
 }
-
+/*
 t_list	*ft_lst_init_addback(t_list *lst, int fd)
 {
 	t_list	*tmp;
@@ -683,29 +776,57 @@ t_list	*ft_lst_init_addback(t_list *lst, int fd)
 	tmp->position = 0;
 	tmp->next = NULL;
 	return (tmp);
-
-
 }
+*/
+t_list	*ft_lst_init_addback(t_list **lst, int fd)
+{
+	t_list	*tmp;
+	int		i;
+
+	i = -1;
+	tmp = (*lst);
+	while (tmp && tmp->next)
+		tmp = tmp->next;
+	if (tmp)
+	{
+		tmp->next = malloc(sizeof(t_list));
+		tmp = tmp->next;
+		if (!tmp)
+			return (NULL);
+	}
+	else
+		tmp = malloc(sizeof(t_list));
+	tmp->fd = fd;
+	tmp->content = NULL;
+	while (++i < BUFFER_SIZE + 1)
+		tmp->buff[i] = '\0';
+	tmp->position = 0;
+	tmp->next = NULL;
+	if (!*lst)
+		*lst = tmp;
+	return (tmp);
+}
+
 /*********************************gnl******************************/
 
 char	*get_next_line(int fd)
 {
-	static t_list	lst;
+	static t_list	*lst;
 	t_list			*c_lst;
 
-	c_lst = &lst;
+	c_lst = lst;
 	while (c_lst && c_lst->fd != fd)
 		c_lst = c_lst->next;
 	if (!c_lst)
 		c_lst = ft_lst_init_addback(&lst, fd);
-	if (c_lst->content)
+	if (c_lst && c_lst->content)
 	{
 		free(c_lst->content);
 		c_lst->content = NULL;
 	}
-	build_content(&lst, c_lst);
+	build_content(lst, c_lst);
 //	ft_print_lst_address(&lst);
-	if (lst.next && c_lst)
+	if (c_lst)
 		return (c_lst->content);
 	else
 		return NULL;
