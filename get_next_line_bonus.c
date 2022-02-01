@@ -6,7 +6,7 @@
 /*   By: lchan <marvin@42.fr>                       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/25 13:58:12 by lchan             #+#    #+#             */
-/*   Updated: 2022/02/01 20:20:48 by lchan            ###   ########.fr       */
+/*   Updated: 2022/02/01 16:57:16 by lchan            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -632,10 +632,7 @@ char	*ft_strjoinfree_s1(t_list *c_lst, size_t position)	// here position is not 
 		*(joined_str++) = c_lst->content[index];
 	index = -1;
 	while (++index < (int)len_s2)
-	{
-		*(joined_str++) = c_lst->buff[position];
-		c_lst->buff[position++] = '\0';
-	}
+		*(joined_str++) = c_lst->buff[position++];
 	*(joined_str) = '\0';
 	if (c_lst->content)
 	{
@@ -752,8 +749,6 @@ void free_block(t_list **lst, t_list **c_lst)
 		tmp = tmp->next;
 	}
 	tmp->next = (*c_lst)->next;
-
-	printf("free c_lst in free_block, adress = %p\n", *c_lst);
 	free(*c_lst);
 //	if ((*lst) == *c_lst)
 		*lst = NULL;
@@ -828,10 +823,7 @@ void	build_content(t_list **lst, t_list **c_lst)
 	if (ret <= 0)
 	{
 		if (ret == 0 && (*c_lst)->buff[(*c_lst)->position] == '\0' && !(*c_lst)->content)
-		{
-			puts("wefrs");
 			free_block(lst, c_lst);
-		}
 		else if (ret == -1)
 			free_list(lst);
 		return ;
@@ -932,10 +924,7 @@ char	*get_next_line(int fd)
 	if (lst && c_lst)
 		return (c_lst->content);
 	else if (c_lst)
-	{
-		printf("free c_lst in get_next_line adress = %p", c_lst);
 		free_block(&lst, &c_lst);
-	}
-	return NULL;
+		return NULL;
 	
 }

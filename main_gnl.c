@@ -6,7 +6,7 @@
 /*   By: lchan <marvin@42.fr>                       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/25 14:05:46 by lchan             #+#    #+#             */
-/*   Updated: 2022/01/31 17:27:45 by lchan            ###   ########.fr       */
+/*   Updated: 2022/02/01 19:40:20 by lchan            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,20 +15,27 @@
 int	main(int ac, char **av)
 {
 	int index = -1;
+	char *str;
 	int fd;
 	(void) ac;
 	(void) av;
 
-	fd = open("testnull.txt", O_RDONLY);
+	fd = open("test.txt", O_RDONLY);
 	if (fd == -1)
 	{
 		printf("open error\n");
 		return (0);
 	}
+	str = NULL;
 	while (++index < 10)
-		printf("call %d : %s",index,  get_next_line(fd)); 
+	{
+		str = get_next_line(fd);
+		printf("call %d : %s",index, str); 
+		free(str);
+	}
 	if (close(fd) == -1)
 		printf("close error\n");
+//	system("leaks a.out");
 	return (0);
 }
 //gcc -g3 -fsanitize=address main_gnl.c get_next_line.c -D BUFFER_SIZE=8 && ./a.out
@@ -54,26 +61,19 @@ int	main(int ac, char **av)
 		printf("open error\n");
 		return (0);
 	}
-//	else
-//		printf("fd = %d, open success\n", fd); printf("fd2 = %d, open success\n", fd2);
-//	printf("\n\n*****************First call of gnl with %s\n", av[1]); printf("	fd = %d\n", fd);
 	while (str) 
 	{
-		str = get_next_line(fd4);
-		printf("%s", str); 
-//		printf("%s", get_next_line(fd2)); 
-//		printf("%s", get_next_line(fd2)); 
-//		printf("%s", get_next_line(fd3));
+		str = get_next_line(fd);
+		printf("str = %s", str); 
 	}
 //	printf("%s", get_next_line(fd2)); 
 //	printf("%s", get_next_line(fd2)); 
 //	printf("%s", get_next_line(fd)); 
 //	printf("%s", get_next_line(fd)); 
-	get_next_line(fd3);
 	if (close(fd) == -1 || close(fd2) == -1)
 		printf("close error\n");
 	return (0);
 }
 
 //gcc -g3 -fsanitize=address main_gnl.c get_next_line.c -D BUFFER_SIZE=10 && ./a.out test.txt test2.txt
-//gcc -g3 -fsanitize=address main_gnl.c get_next_line.c -D BUFFER_SIZE=10 && ./a.out test.txt test2.txt test3.txt | cat -e
+//gcc -g3 -fsanitize=address main_gnl.c get_next_line.c -D BUFFER_SIZE=10 && ./a.out test.txt test2.txt test3.txt testnull.txt | cat -e
