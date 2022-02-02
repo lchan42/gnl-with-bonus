@@ -6,15 +6,12 @@
 /*   By: lchan <marvin@42.fr>                       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/25 14:38:47 by lchan             #+#    #+#             */
-/*   Updated: 2022/02/01 15:18:48 by lchan            ###   ########.fr       */
+/*   Updated: 2022/01/30 20:28:41 by lchan            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef GET_NEXT_LINE_H
 # define GET_NEXT_LINE_H
-# ifndef BUFFER_SIZE
-# define BUFFER_SIZE 0
-# endif
 
 /*
 # ifndef MAX_OPEN
