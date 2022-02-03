@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   get_next_line.c                                    :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: lchan <marvin@42.fr>                       +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2022/02/03 19:09:40 by lchan             #+#    #+#             */
+/*   Updated: 2022/02/03 19:18:14 by lchan            ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "get_next_line.h"
 
 size_t	ft_strlen_opt_newline(char *str, int opt_newline)
@@ -7,16 +19,13 @@ size_t	ft_strlen_opt_newline(char *str, int opt_newline)
 	if (!str)
 		return (0);
 	index = 0;
-	if (opt_newline == 1)
+	while (opt_newline == 1 && str[index])
 	{
-		while (str[index])
-		{
-			if (str[index] == '\n')
-				return (index + 1);
-			index++;
-		}
+		if (str[index] == '\n')
+			return (index + 1);
+		index++;
 	}
-	else if (opt_newline == 2)
+	if (opt_newline == 2)
 	{
 		while (str[index])
 		{
@@ -31,13 +40,12 @@ size_t	ft_strlen_opt_newline(char *str, int opt_newline)
 			index++;
 	return (index);
 }
-/* 
-3 in one funtion;
+/**************************************************************
 - opt_line = 1 : give the position after newline in the buffer. 
 	Usefull for ft_strjoinfree and  buff_rebuild;
-- opt_line = 2 : is equivalent to an strchr for new_line
+- opt_line = 2 : is equivalent to a strchr for new_line
 - opt_newline = 0 : normal strlen; 
-*/
+***************************************************************/
 
 char	*ft_strjoinfree_content(t_list *nod)
 {
@@ -53,7 +61,7 @@ char	*ft_strjoinfree_content(t_list *nod)
 	index = -1;
 	new_content = (char *)malloc((len_content + len_buff + 1) * sizeof (char));
 	if (!new_content)
-		return NULL;
+		return (NULL);
 	while (++index < (int)len_content)
 		*(new_content++) = nod->content[index];
 	index = -1;
@@ -76,52 +84,7 @@ void	ft_rebuild_buff(t_list *nod)
 		nod->buff[index++] = nod->buff[start++];
 	nod->buff[index] = '\0';
 }
-/*
-len_buff is caculated with opt_newline = 1. it will give the position after the newline.
-ft_strjoinfree_content free the malloced nod->content if it exite.
-*/
-/*
-char	*ft_strjoinfree_content(t_list *nod)
-{
-	int		len_content;
-	int		len_buff;
-	int		index;
-	char	*new_content;
 
-	if (!nod->content && !nod->buff[0])
-		return (NULL);
-	len_content = ft_strlen_opt_newline(nod->content, 0);
-	len_buff = ft_strlen_opt_newline(nod->buff, 1);
-	nod->position = len_buff;
-	index = -1;
-	new_content = (char *)malloc((len_content + len_buff + 1) * sizeof (char));
-	if (!new_content)
-		return NULL;
-	while (++index < (int)len_content)
-		*(new_content++) = nod->content[index];
-	index = -1;
-	while (++index < (int)len_buff)
-		*(new_content++) = nod->buff[index];
-	*(new_content) = '\0';
-	if (nod->content)
-		free(nod->content);
-	return (new_content - (len_content + len_buff));
-}
- this version is stocking the position in strjoinfree
-   position is used in rebuild_buff
-   
-void	ft_rebuild_buff(t_list *nod)
-{
-	int	start;
-	int	index;
-
-	index = 0;
-	start = ft_strlen_opt_newline(nod->buff, 1);
-	while (nod->buff[start])
-		nod->buff[index++] = nod->buff[start++];
-	nod->buff[index] = '\0';
-}
-*/
 void	gnl_build_content(t_list **nod, int fd)
 {
 	int	ret;
@@ -132,7 +95,7 @@ void	gnl_build_content(t_list **nod, int fd)
 		if (!(*nod)->buff[0])
 		{
 			ret = read(fd, (*nod)->buff, BUFFER_SIZE);
-			(*nod)->buff[ret] = '\0'; 
+			(*nod)->buff[ret] = '\0';
 		}
 		else
 		{
@@ -145,9 +108,23 @@ void	gnl_build_content(t_list **nod, int fd)
 			break ;
 	}
 }
-/*
-	
-**/
+
+t_list	*ft_struct_init(int fd)
+{	
+	t_list	*tmp;
+	int		i;
+
+	i = -1;
+	tmp = malloc(sizeof(t_list));
+	if (!tmp)
+		return (NULL);
+	tmp->fd = fd;
+	tmp->content = NULL;
+	while (++i < BUFFER_SIZE + 1)
+		tmp->buff[i] = '\0';
+	tmp->next = NULL;
+	return (tmp);
+}
 
 t_list	*ft_lst_init_addback(t_list **head, int fd)
 {
@@ -161,16 +138,8 @@ t_list	*ft_lst_init_addback(t_list **head, int fd)
 	if (tmp)
 		while (tmp->fd != fd)
 			tmp = tmp->next;
-	if (!tmp)
-	{
-		tmp = malloc(sizeof(t_list));
-		tmp->fd = fd;
-		tmp->content = NULL;
-		while (++i < BUFFER_SIZE + 1)
-			tmp->buff[i] = '\0';
-		tmp->position = 0;
-		tmp->next = NULL;
-	}
+	else
+		tmp = ft_struct_init(fd);
 	if (!*head)
 		*head = tmp;
 	else if (tmp2->next)
@@ -182,7 +151,6 @@ t_list	*ft_lst_init_addback(t_list **head, int fd)
 	return (tmp);
 }
 
-
 char	*get_next_line(int fd)
 {
 	static t_list	*head;
@@ -192,14 +160,13 @@ char	*get_next_line(int fd)
 		return (NULL);
 	nod = ft_lst_init_addback(&head, fd);
 	if (nod && nod->content)
-	{
-		//free (nod->content);
 		nod->content = NULL;
-	}
 	gnl_build_content(&nod, nod->fd);
-	if (!nod->content && !nod->buff[0]) //need to do free block for bonus
+	if (!nod->content && !nod->buff[0])
 	{
 		free(nod);
+		if (nod == head)
+			head = NULL;
 		nod = NULL;
 	}
 	if (nod)
@@ -207,7 +174,3 @@ char	*get_next_line(int fd)
 	else
 		return (NULL);
 }
-
-//seems that does not work with empty files 
-//freeing too much if file is empty
-
