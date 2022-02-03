@@ -80,7 +80,48 @@ void	ft_rebuild_buff(t_list *nod)
 len_buff is caculated with opt_newline = 1. it will give the position after the newline.
 ft_strjoinfree_content free the malloced nod->content if it exite.
 */
+/*
+char	*ft_strjoinfree_content(t_list *nod)
+{
+	int		len_content;
+	int		len_buff;
+	int		index;
+	char	*new_content;
 
+	if (!nod->content && !nod->buff[0])
+		return (NULL);
+	len_content = ft_strlen_opt_newline(nod->content, 0);
+	len_buff = ft_strlen_opt_newline(nod->buff, 1);
+	nod->position = len_buff;
+	index = -1;
+	new_content = (char *)malloc((len_content + len_buff + 1) * sizeof (char));
+	if (!new_content)
+		return NULL;
+	while (++index < (int)len_content)
+		*(new_content++) = nod->content[index];
+	index = -1;
+	while (++index < (int)len_buff)
+		*(new_content++) = nod->buff[index];
+	*(new_content) = '\0';
+	if (nod->content)
+		free(nod->content);
+	return (new_content - (len_content + len_buff));
+}
+ this version is stocking the position in strjoinfree
+   position is used in rebuild_buff
+   
+void	ft_rebuild_buff(t_list *nod)
+{
+	int	start;
+	int	index;
+
+	index = 0;
+	start = ft_strlen_opt_newline(nod->buff, 1);
+	while (nod->buff[start])
+		nod->buff[index++] = nod->buff[start++];
+	nod->buff[index] = '\0';
+}
+*/
 void	gnl_build_content(t_list **nod, int fd)
 {
 	int	ret;
@@ -89,7 +130,10 @@ void	gnl_build_content(t_list **nod, int fd)
 	while (1)
 	{
 		if (!(*nod)->buff[0])
+		{
 			ret = read(fd, (*nod)->buff, BUFFER_SIZE);
+			(*nod)->buff[ret] = '\0'; 
+		}
 		else
 		{
 			(*nod)->content = ft_strjoinfree_content(*nod);
@@ -144,12 +188,26 @@ char	*get_next_line(int fd)
 	static t_list	*head;
 	t_list			*nod;
 
+	if (fd == -1)
+		return (NULL);
 	nod = ft_lst_init_addback(&head, fd);
 	if (nod && nod->content)
 	{
-		free (nod->content);
+		//free (nod->content);
 		nod->content = NULL;
 	}
 	gnl_build_content(&nod, nod->fd);
-	return (nod->content);
+	if (!nod->content && !nod->buff[0]) //need to do free block for bonus
+	{
+		free(nod);
+		nod = NULL;
+	}
+	if (nod)
+		return (nod->content);
+	else
+		return (NULL);
 }
+
+//seems that does not work with empty files 
+//freeing too much if file is empty
+

@@ -68,8 +68,8 @@ int	main(int ac, char **av)
 //	printf("%s", get_next_line(fd2)); 
 //	printf("%s", get_next_line(fd2)); 
 //	printf("%s", get_next_line(fd)); 
-//	printf("%s", get_next_line(fd)); 
-	get_next_line(fd3);
+//	printf("%s", get_next_line(fd));
+	free(str);
 	if (close(fd) == -1 || close(fd2) == -1)
 		printf("close error\n");
 	return (0);
