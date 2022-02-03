@@ -188,7 +188,7 @@ char	*get_next_line(int fd)
 	static t_list	*head;
 	t_list			*nod;
 
-	if (fd == -1)
+	if (fd <= -1 || BUFFER_SIZE <= 0)
 		return (NULL);
 	nod = ft_lst_init_addback(&head, fd);
 	if (nod && nod->content)
