@@ -6,14 +6,14 @@
 /*   By: lchan <marvin@42.fr>                       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/25 14:38:47 by lchan             #+#    #+#             */
-/*   Updated: 2022/02/03 18:43:10 by lchan            ###   ########.fr       */
+/*   Updated: 2022/02/04 15:23:59 by lchan            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef GET_NEXT_LINE_H
 # define GET_NEXT_LINE_H
 # ifndef BUFFER_SIZE
-# define BUBBER_SIZE 0
+#  define BUBBER_SIZE 0
 # endif
 
 # include <stddef.h>
@@ -28,10 +28,10 @@
 
 typedef struct s_list
 {
-	int		fd;
-	char	*content;
-	char	buff[BUFFER_SIZE + 1];
-	struct	s_list	*next;
+	int				fd;
+	char			*content;
+	char			buff[BUFFER_SIZE + 1];
+	struct s_list	*next;
 }t_list;
 
 //get_next_line_utils.c
