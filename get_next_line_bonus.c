@@ -10,7 +10,7 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "get_next_line.h"
+#include "get_next_line_bonus.h"
 
 size_t	ft_strlen_opt_newline(char *str, int opt_newline)
 {
@@ -114,15 +114,22 @@ void	gnl_free_block(t_list **head, t_list *nod)
 	t_list	*tmp_link;
 
 	tmp_link = *head;
-	if (tmp_link != nod)
+	if (tmp_link == nod)
+		*head = (*head)->next;
+	else
+	{
 		while (tmp_link->next != nod)
 			tmp_link = tmp_link->next;
-	tmp_link->next = nod->next;
+		tmp_link->next =nod->next;
+	}
 	if (nod->content)
 		free(nod->content);
 	free(nod);
 	nod = NULL;
 }
+/**************************************************************
+* this is the only fonction added in the bonus file.
+**************************************************************/
 
 t_list	*ft_struct_init(int fd)
 {	
@@ -145,23 +152,24 @@ t_list	*ft_lst_init_addback(t_list **head, int fd)
 {
 	t_list	*tmp;
 	t_list	*tmp2;
-	int		i;
 
-	i = -1;
 	tmp = (*head);
 	tmp2 = (*head);
-	if (tmp)
-		while (tmp->fd != fd)
-			tmp = tmp->next;
-	else
-		tmp = ft_struct_init(fd);
-	if (!*head)
-		*head = tmp;
-	else if (tmp2->next)
+	while (tmp && tmp->fd != fd)
+		tmp = tmp->next;
+	if (tmp && tmp->fd == fd)
+		return (tmp);
+	else if (!tmp)
 	{
-		while (tmp2->next)
-			tmp2 = tmp2->next;
-		tmp2->next = tmp;
+		tmp = ft_struct_init(fd);
+		if (!*head)
+			*head = tmp;
+		else
+		{
+			while (tmp2->next)
+				tmp2 = tmp2->next;
+			tmp2->next = tmp;
+		}
 	}
 	return (tmp);
 }

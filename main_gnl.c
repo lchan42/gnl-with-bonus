@@ -10,7 +10,9 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#include"get_next_line.h"
+//  #include"get_next_line.h"
+#include"get_next_line_bonus.h"
+
 /*
 int	main(int ac, char **av)
 {
@@ -60,13 +62,21 @@ int	main(int ac, char **av)
 //	else
 //		printf("fd = %d, open success\n", fd); printf("fd2 = %d, open success\n", fd2);
 //	printf("\n\n*****************First call of gnl with %s\n", av[1]); printf("	fd = %d\n", fd);
-//	while (str) 
-//	{
+	while (++index < 10) 
+	{
+		str = get_next_line(fd4);
+		printf("%s", str);
+		free (str);
 		str = get_next_line(fd);
-		printf("%s", str); 
-		str = get_next_line(fd);
-		printf("%s", str); 
-//	}
+		printf("%s", str);
+		free (str);
+		str = get_next_line(fd2);
+		printf("%s", str);
+		free (str);
+		str = get_next_line(fd3);
+		printf("%s", str);
+		free (str);
+	}
 	if (str)
 		free(str);
 	if (close(fd) == -1 || close(fd2) == -1)
@@ -77,4 +87,5 @@ int	main(int ac, char **av)
 //gcc -g3 -fsanitize=address main_gnl.c get_next_line.c -D BUFFER_SIZE=10 && ./a.out test.txt test2.txt
 //gcc -g3 -fsanitize=address main_gnl.c get_next_line.c -D BUFFER_SIZE=10 && ./a.out test.txt test2.txt test3.txt | cat -e
 //gcc -g3 -fsanitize=address main_gnl.c get_next_line.c -D BUFFER_SIZE=10 && ./a.out test.txt test2.txt test3.txt | cat -e
+// gcc -g3 -fsanitize=address  main_gnl.c get_next_line_bonus.c -D BUFFER_SIZE=10 && ./a.out test.txt test2.txt test3.txt gnlTester/files/empty
 

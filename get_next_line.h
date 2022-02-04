@@ -12,12 +12,9 @@
 
 #ifndef GET_NEXT_LINE_H
 # define GET_NEXT_LINE_H
-
-/*
-# ifndef MAX_OPEN
-# define MAX_OPEN 1024
+# ifndef BUFFER_SIZE
+# define BUBBER_SIZE 0
 # endif
-*/
 
 # include <stddef.h>
 # include <stdlib.h>
@@ -29,7 +26,6 @@
 # include <sys/stat.h>
 # include <fcntl.h>
 
-
 typedef struct s_list
 {
 	int		fd;
@@ -38,5 +34,15 @@ typedef struct s_list
 	struct	s_list	*next;
 }t_list;
 
+//get_next_line_utils.c
+size_t	ft_strlen_opt_newline(char *str, int opt_newline);
+char	*ft_strjoinfree_content(t_list *nod);
+t_list	*ft_struct_init(int fd);
+t_list	*ft_lst_init_addback(t_list **head, int fd);
+
+//get_next_line.c
+void	ft_rebuild_buff(t_list *nod);
+void	gnl_build_content(t_list **nod, int fd);
 char	*get_next_line(int fd);
+
 #endif
